@@ -1,0 +1,12 @@
+---
+
+- hosts: cluster
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Update & Upgrade system
+      apt:
+        update_cache: yes
+        upgrade: yes
+        autoremove: yes
+        

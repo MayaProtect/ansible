@@ -9,7 +9,9 @@
     - role: raspberrypi
   tasks:
     - name: Install docker
-      shell: curl https://releases.rancher.com/install-docker/19.03.sh | sh
+      apt:
+        name: docker.io
+        update_cache: yes
     - name: Install awscli
       apt:
         name: awscli

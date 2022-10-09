@@ -1,19 +1,21 @@
 ---
 
 - hosts: gateway
-  become: true
   become_method: sudo
   tasks:
     - name: Update & Upgrade system
+      become: true
       apt:
         update_cache: yes
         upgrade: yes
         autoremove: yes
     - name: Install Python
+      become: true
       apt:
         name: python3
         update_cache: yes
     - name: Install pip
+      become: true
       apt:
         name: pip
         update_cache: yes
@@ -21,10 +23,12 @@
       pip:
         name: ansible
     - name: Install git
+      become: true
       apt:
         name: git
         update_cache: yes
     - name: Install awscli
+      become: true
       apt:
         name: awscli
         update_cache: yes
@@ -43,20 +47,25 @@
         - ./keys/*.pub
     - name: Download playbook from git
       git:
-        repo: git@github.com:MayaProtect/ansible.git
+        repo: https://github.com/MayaProtect/ansible.git
         dest: /home/{{ ansible_user }}/ansible
         version: main
+        force: yes
     - name: Copy inventory
       copy:
         src: ./inventory/hosts.ini
         dest: /home/{{ ansible_user }}/ansible/inventory/hosts.ini
-        remote_src: yes
+
+    - name: Copy private key
+      copy:
+        src: ./keys/ssh_key
+        dest: /home/{{ ansible_user }}/.ssh/id_rsa
+        mode: 0400
+
+    - name: set remote host no verification
+      shell: export ANSIBLE_HOST_KEY_CHECKING=False
 
     - name: Run playbook Update
-      ansible.builtin.ansible_playbook:
-        playbook: /home/{{ ansible_user }}/ansible/01_update_all.yml
-        inventory: /home/{{ ansible_user }}/ansible/inventory/hosts.ini
+      shell: ansible-playbook -i /home/{{ ansible_user }}/ansible/inventory/hosts.ini /home/{{ ansible_user }}/ansible/01_update_all.yml
     - name: Run playbook Install
-      ansible.builtin.ansible_playbook:
-        playbook: /home/{{ ansible_user }}/ansible/02_k3s_install.yml
-        inventory: /home/{{ ansible_user }}/ansible/inventory/hosts.ini
+      shell: ansible-playbook -i /home/{{ ansible_user }}/ansible/inventory/hosts.ini /home/{{ ansible_user }}/ansible/02_k3s_install.yml

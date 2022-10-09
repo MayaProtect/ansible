@@ -1,0 +1,23 @@
+---
+
+- hosts: cluster
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Update & Upgrade system
+      apt:
+        update_cache: yes
+        upgrade: yes
+        autoremove: yes
+    - name: Install awscli
+      apt:
+        name: awscli
+        update_cache: yes
+    # Configure awscli
+    # - name: Configure awscli credentials
+    #   shell: aws configure set aws_access_key_id {{ aws_access_key_id }} --profile {{ aws_profile }}
+    # - name: Configure awscli credentials
+    #   shell: aws configure set aws_secret_access_key {{ aws_secret_access_key }} --profile {{ aws_profile }}
+    # - name: Configure awscli region
+    #   shell: aws configure set {{ aws_profile }}.region eu-west-1
+        

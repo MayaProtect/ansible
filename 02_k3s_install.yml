@@ -1,19 +1,40 @@
 ---
 
 - hosts: cluster
-  gather_facts: yes
-  become: yes
+  gather_facts: true
+  become: true
   roles:
     - role: prereq
     - role: download
     - role: raspberrypi
+  tasks:
+    - name: Install docker
+      shell: curl https://releases.rancher.com/install-docker/19.03.sh | sh
+    - name: Install awscli
+      apt:
+        name: awscli
+        update_cache: yes
+    - name: Set aws region
+      shell: aws configure set default.region {{ aws_region }}
+    - name: Install aws ecr helper
+      apt:
+        name: amazon-ecr-credential-helper
+        update_cache: yes
+
 
 - hosts: master
-  become: yes
+  become: true
   roles:
     - role: k3s/master
+  tasks:
+    - name: Fetch .kube/config
+      fetch:
+        src: /home/{{ ansible_user }}/.kube/config
+        dest: /home/{{ ansible_user }}/.kube/config
+        flat: yes
+        mode: 0644
 
 - hosts: nodes
-  become: yes
+  become: true
   roles:
     - role: k3s/node

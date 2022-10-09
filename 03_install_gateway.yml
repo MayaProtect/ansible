@@ -1,0 +1,62 @@
+---
+
+- hosts: gateway
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Update & Upgrade system
+      apt:
+        update_cache: yes
+        upgrade: yes
+        autoremove: yes
+    - name: Install Python
+      apt:
+        name: python3
+        update_cache: yes
+    - name: Install pip
+      apt:
+        name: pip
+        update_cache: yes
+    - name: Install ansible
+      pip:
+        name: ansible
+    - name: Install git
+      apt:
+        name: git
+        update_cache: yes
+    - name: Install awscli
+      apt:
+        name: awscli
+        update_cache: yes
+    # Configure awscli
+    # - name: Configure awscli credentials
+    #   shell: aws configure set aws_access_key_id {{ aws_access_key_id }} --profile {{ aws_profile }}
+    # - name: Configure awscli credentials
+    #   shell: aws configure set aws_secret_access_key {{ aws_secret_access_key }} --profile {{ aws_profile }}
+    # - name: Configure awscli region
+    #   shell: aws configure set default.region eu-west-1
+    - name: add public keys to authorized_keys
+      authorized_key:
+        user: ubuntu
+        key: "{{ lookup('file', item) }}"
+      with_fileglob:
+        - ./keys/*.pub
+    - name: Download playbook from git
+      git:
+        repo: git@github.com:MayaProtect/ansible.git
+        dest: /home/{{ ansible_user }}/ansible
+        version: main
+    - name: Copy inventory
+      copy:
+        src: ./inventory/hosts.ini
+        dest: /home/{{ ansible_user }}/ansible/inventory/hosts.ini
+        remote_src: yes
+
+    - name: Run playbook Update
+      ansible.builtin.ansible_playbook:
+        playbook: /home/{{ ansible_user }}/ansible/01_update_all.yml
+        inventory: /home/{{ ansible_user }}/ansible/inventory/hosts.ini
+    - name: Run playbook Install
+      ansible.builtin.ansible_playbook:
+        playbook: /home/{{ ansible_user }}/ansible/02_k3s_install.yml
+        inventory: /home/{{ ansible_user }}/ansible/inventory/hosts.ini

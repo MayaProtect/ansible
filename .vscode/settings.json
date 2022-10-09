@@ -1,0 +1,10 @@
+{
+    "yaml.schemas": {
+        "https://raw.githubusercontent.com/ansible/schemas/main/f/ansible.json#/$defs/playbook": [
+            "file:///Users/peterfontaine/Dev/MayaProtect/ansible/02_k3s_install.yml",
+            "file:///Users/peterfontaine/Dev/MayaProtect/ansible/01_update_all.yml",
+            "file:///Users/peterfontaine/Dev/MayaProtect/ansible/03_install_gateway.yml",
+            "file:///Users/peterfontaine/Dev/MayaProtect/ansible/99_k3s_reset.yml"
+        ]
+    }
+}

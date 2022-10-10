@@ -8,10 +8,6 @@
     - role: download
     - role: raspberrypi
   tasks:
-    - name: Install docker
-      apt:
-        name: docker.io
-        update_cache: yes
     - name: Install awscli
       apt:
         name: awscli
